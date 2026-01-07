@@ -101,7 +101,7 @@ The application employs a modern educational aesthetic that balances academic pr
 ### Development Setup
 ```bash
 # Navigate to project directory
-cd /mnt/okcomputer/output/
+cd /Smart-notebook
 
 # Start local server
 python -m http.server 8000
