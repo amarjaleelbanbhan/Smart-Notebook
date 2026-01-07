@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Study Session - Smart Study Notes</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                        'playfair': ['Playfair Display', 'serif']
+                    },
+                    colors: {
+                        'primary': '#1a237e',
+                        'secondary': '#3f51b5',
+                        'accent': '#ff6b6b',
+                        'success': '#27ae60',
+                        'warning': '#ff9800',
+                        'paper': '#fdfdf6',
+                        'ink': '#1a237e'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        :root {
+            --primary: #1a237e;
+            --secondary: #3f51b5;
+            --accent: #ff6b6b;
+            --success: #27ae60;
+            --warning: #ff9800;
+            --paper: #fdfdf6;
+            --ink: #1a237e;
+            --gray: #57606f;
+            --light-blue: #e3f2fd;
+            --cream: #fff9c4;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--paper);
+            color: var(--ink);
+            line-height: 1.6;
+            padding-top: 80px;
+        }
+        
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(253, 253, 246, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(26, 35, 126, 0.1);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: var(--ink);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--secondary);
+        }
+        
+        .nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: var(--secondary);
+        }
+        
+        /* Study Container */
+        .study-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 2rem;
+            min-height: calc(100vh - 80px);
+        }
+        
+        /* Sidebar */
+        .study-sidebar {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+        
+        .sidebar-header {
+            margin-bottom: 2rem;
+        }
+        
+        .sidebar-header h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .study-modes {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .mode-btn {
+            background: var(--light-blue);
+            border: 2px solid transparent;
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+        
+        .mode-btn:hover {
+            border-color: var(--secondary);
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(63, 81, 181, 0.15);
+        }
+        
+        .mode-btn.active {
+            border-color: var(--secondary);
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .mode-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .mode-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .mode-desc {
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        /* Study Timer */
+        .study-timer {
+            background: var(--cream);
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            text-align: center;
+        }
+        
+        .timer-display {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .timer-controls {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+        
+        .timer-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        
+        .timer-btn:hover {
+            background: var(--primary);
+            transform: translateY(-1px);
+        }
+        
+        .timer-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Main Content */
+        .study-main {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            min-height: 600px;
+        }
+        
+        .study-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .study-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .study-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .progress-indicator {
+            background: #f0f0f0;
+            border-radius: 20px;
+            height: 8px;
+            width: 200px;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        
+        /* Study Modes Content */
+        .study-mode-content {
+            display: none;
+        }
+        
+        .study-mode-content.active {
+            display: block;
+        }
+        
+        /* Notes Mode */
+        .notes-mode {
+            line-height: 1.8;
+        }
+        
+        .notes-content h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin: 2rem 0 1rem;
+        }
+        
+        .notes-content h3 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin: 1.5rem 0 0.75rem;
+        }
+        
+        .notes-content p {
+            margin-bottom: 1rem;
+            color: var(--gray);
+        }
+        
+        .notes-content ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .notes-content li {
+            background: var(--cream);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid var(--warning);
+        }
+        
+        .notes-content li::before {
+            content: '→';
+            margin-right: 0.5rem;
+            color: var(--accent);
+            font-weight: bold;
+        }
+        
+        /* Quiz Mode */
+        .quiz-mode {
+            text-align: center;
+        }
+        
+        .quiz-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .quiz-progress {
+            margin-bottom: 2rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .question-container {
+            background: var(--light-blue);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 2rem;
+        }
+        
+        .options-grid {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .quiz-option {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+        
+        .quiz-option:hover {
+            border-color: var(--secondary);
+            background: var(--light-blue);
+        }
+        
+        .quiz-option.selected {
+            border-color: var(--secondary);
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .quiz-option.correct {
+            border-color: var(--success);
+            background: var(--success);
+            color: white;
+        }
+        
+        .quiz-option.incorrect {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: white;
+        }
+        
+        .quiz-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        
+        /* Flashcard Mode */
+        .flashcard-mode {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .flashcard-container {
+            width: 100%;
+            max-width: 500px;
+            height: 300px;
+            margin-bottom: 2rem;
+        }
+        
+        .flashcard-3d {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        
+        .flashcard-3d.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .flashcard-front,
+        .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+        }
+        
+        .flashcard-front {
+            background: white;
+            border: 2px solid var(--secondary);
+        }
+        
+        .flashcard-back {
+            background: var(--cream);
+            transform: rotateY(180deg);
+        }
+        
+        .card-content {
+            text-align: center;
+        }
+        
+        .card-content h4 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .card-hint {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .flashcard-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .card-counter {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .nav-btn {
+            background: var(--secondary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover {
+            background: var(--primary);
+            transform: translateY(-1px);
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Progress Sidebar */
+        .progress-sidebar {
+            background: white;
+            border-radius: 16px;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+        
+        .progress-header {
+            margin-bottom: 2rem;
+        }
+        
+        .progress-header h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .progress-stats {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .progress-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            background: var(--light-blue);
+            border-radius: 8px;
+        }
+        
+        .stat-label {
+            font-weight: 500;
+            color: var(--primary);
+        }
+        
+        .stat-value {
+            font-weight: 700;
+            color: var(--secondary);
+        }
+        
+        /* Study Achievements */
+        .study-achievements {
+            margin-top: 2rem;
+        }
+        
+        .achievements-header {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .achievement-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .achievement-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            background: var(--cream);
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+        
+        .achievement-icon {
+            margin-right: 0.5rem;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .study-container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            
+            .study-sidebar,
+            .progress-sidebar {
+                position: static;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .study-container {
+                padding: 1rem;
+            }
+            
+            .quiz-container {
+                padding: 1rem;
+            }
+            
+            .flashcard-container {
+                height: 250px;
+            }
+            
+            .study-header {
+                flex-direction: column;
+                gap: 1rem;
+                text-align: center;
+            }
+            
+            .progress-indicator {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        /* Focus Mode */
+        .focus-mode {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--paper);
+            z-index: 2000;
+            display: none;
+            padding: 2rem;
+        }
+        
+        .focus-mode.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .focus-header {
+            position: absolute;
+            top: 2rem;
+            left: 2rem;
+            right: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .exit-focus-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            cursor: pointer;
+        }
+        
+        .focus-timer {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="index.html" class="logo">SmartStudy</a>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="study.html" class="active">Study</a></li>
+                <li><a href="library.html">Library</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- Study Container -->
+    <main class="study-container">
+        <!-- Study Sidebar -->
+        <aside class="study-sidebar">
+            <div class="sidebar-header">
+                <h3>Study Modes</h3>
+                <p>Choose your learning style</p>
+            </div>
+            
+            <div class="study-modes">
+                <button class="mode-btn active" data-mode="notes">
+                    <span class="mode-icon">📄</span>
+                    <div class="mode-title">Study Notes</div>
+                    <div class="mode-desc">Review your generated notes</div>
+                </button>
+                
+                <button class="mode-btn" data-mode="quiz">
+                    <span class="mode-icon">📝</span>
+                    <div class="mode-title">Quiz Mode</div>
+                    <div class="mode-desc">Test your knowledge</div>
+                </button>
+                
+                <button class="mode-btn" data-mode="flashcards">
+                    <span class="mode-icon">📚</span>
+                    <div class="mode-title">Flashcards</div>
+                    <div class="mode-desc">Review key terms</div>
+                </button>
+                
+                <button class="mode-btn" data-mode="diagrams">
+                    <span class="mode-icon">📊</span>
+                    <div class="mode-title">Visual Diagrams</div>
+                    <div class="mode-desc">Explore visual concepts</div>
+                </button>
+            </div>
+            
+            <!-- Study Timer -->
+            <div class="study-timer">
+                <div class="timer-display" id="timer-display">00:00:00</div>
+                <div class="timer-controls">
+                    <button class="timer-btn" id="start-timer">Start</button>
+                    <button class="timer-btn" id="pause-timer" disabled>Pause</button>
+                    <button class="timer-btn" id="reset-timer">Reset</button>
+                </div>
+            </div>
+        </aside>
+        
+        <!-- Main Study Area -->
+        <section class="study-main">
+            <div class="study-header">
+                <h1 class="study-title" id="study-title">Study Session</h1>
+                <div class="study-controls">
+                    <div class="progress-indicator">
+                        <div class="progress-fill" id="main-progress"></div>
+                    </div>
+                    <button class="nav-btn" onclick="toggleFocusMode()">Focus Mode</button>
+                </div>
+            </div>
+            
+            <!-- Notes Mode -->
+            <div class="study-mode-content active" id="notes-mode">
+                <div class="notes-content" id="notes-content">
+                    <h2>Welcome to Your Study Session</h2>
+                    <p>Select a study mode from the sidebar to begin. You can:</p>
+                    <ul>
+                        <li>Review your generated notes</li>
+                        <li>Test your knowledge with quizzes</li>
+                        <li>Study with interactive flashcards</li>
+                        <li>Explore visual diagrams</li>
+                    </ul>
+                    <p>Your progress will be tracked automatically, and you can use the timer to manage your study sessions effectively.</p>
+                </div>
+            </div>
+            
+            <!-- Quiz Mode -->
+            <div class="study-mode-content" id="quiz-mode">
+                <div class="quiz-container">
+                    <div class="quiz-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="quiz-progress"></div>
+                        </div>
+                        <div class="progress-text" id="quiz-progress-text">0/0</div>
+                    </div>
+                    
+                    <div class="question-container" id="quiz-question-container">
+                        <h3 class="question-text">No quiz questions available</h3>
+                        <p>Generate some notes first to create a quiz!</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Flashcard Mode -->
+            <div class="study-mode-content" id="flashcards-mode">
+                <div class="flashcard-mode">
+                    <div class="flashcard-container">
+                        <div class="flashcard-3d" id="main-flashcard" onclick="flipCard()">
+                            <div class="flashcard-front">
+                                <div class="card-content">
+                                    <h4>No flashcards available</h4>
+                                    <p class="card-hint">Generate notes to create flashcards</p>
+                                </div>
+                            </div>
+                            <div class="flashcard-back">
+                                <div class="card-content">
+                                    <p>Flashcard answer will appear here</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flashcard-controls">
+                        <button class="nav-btn" id="prev-card" onclick="previousCard()" disabled>← Previous</button>
+                        <div class="card-counter" id="card-counter">0 / 0</div>
+                        <button class="nav-btn" id="next-card" onclick="nextCard()" disabled>Next →</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Diagrams Mode -->
+            <div class="study-mode-content" id="diagrams-mode">
+                <div class="diagrams-content">
+                    <h2>Visual Diagrams</h2>
+                    <p>Interactive diagrams and visual representations of your study material will appear here.</p>
+                    <div id="diagram-container" style="margin-top: 2rem;">
+                        <div class="mermaid">
+                            graph TD;
+                            A[Start] --> B[Learn];
+                            B --> C[Practice];
+                            C --> D[Master];
+                            D --> E[Success];
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Progress Sidebar -->
+        <aside class="progress-sidebar">
+            <div class="progress-header">
+                <h3>Session Progress</h3>
+                <p>Track your learning</p>
+            </div>
+            
+            <div class="progress-stats">
+                <div class="progress-stat">
+                    <span class="stat-label">Time Studied</span>
+                    <span class="stat-value" id="session-time">0m</span>
+                </div>
+                
+                <div class="progress-stat">
+                    <span class="stat-label">Cards Reviewed</span>
+                    <span class="stat-value" id="cards-reviewed">0</span>
+                </div>
+                
+                <div class="progress-stat">
+                    <span class="stat-label">Quiz Score</span>
+                    <span class="stat-value" id="quiz-score">-</span>
+                </div>
+                
+                <div class="progress-stat">
+                    <span class="stat-label">Accuracy</span>
+                    <span class="stat-value" id="accuracy">-</span>
+                </div>
+            </div>
+            
+            <!-- Study Achievements -->
+            <div class="study-achievements">
+                <div class="achievements-header">Session Achievements</div>
+                <div class="achievement-list" id="session-achievements">
+                    <div class="achievement-item">
+                        <span class="achievement-icon">🎯</span>
+                        <span>Focus for 25 minutes</span>
+                    </div>
+                    <div class="achievement-item">
+                        <span class="achievement-icon">📚</span>
+                        <span>Review 10 flashcards</span>
+                    </div>
+                    <div class="achievement-item">
+                        <span class="achievement-icon">📝</span>
+                        <span>Complete a quiz</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </main>
+    
+    <!-- Focus Mode Overlay -->
+    <div class="focus-mode" id="focus-mode">
+        <div class="focus-header">
+            <h2 style="color: var(--primary);">Focus Mode</h2>
+            <button class="exit-focus-btn" onclick="toggleFocusMode()">Exit Focus</button>
+        </div>
+        
+        <div class="focus-timer" id="focus-timer">25:00</div>
+        
+        <div style="text-align: center; max-width: 600px;">
+            <h3 style="color: var(--primary); margin-bottom: 1rem;">Stay Focused</h3>
+            <p style="color: var(--gray); margin-bottom: 2rem;">
+                Eliminate distractions and concentrate on your learning. Take a 5-minute break after each 25-minute session.
+            </p>
+            <button class="nav-btn" onclick="startFocusSession()">Start Focus Session</button>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="main.js"></script>
+    <script>
+        class StudySessionManager {
+            constructor() {
+                this.currentMode = 'notes';
+                this.studyTimer = {
+                    startTime: null,
+                    elapsed: 0,
+                    isRunning: false,
+                    interval: null
+                };
+                this.focusTimer = {
+                    duration: 25 * 60, // 25 minutes
+                    remaining: 25 * 60,
+                    isRunning: false,
+                    interval: null
+                };
+                this.sessionStats = {
+                    timeStudied: 0,
+                    cardsReviewed: 0,
+                    quizScore: 0,
+                    accuracy: 0
+                };
+                this.init();
+            }
+            
+            init() {
+                this.initEventListeners();
+                this.loadStudyContent();
+                this.updateSessionStats();
+            }
+            
+            initEventListeners() {
+                // Study mode buttons
+                document.querySelectorAll('.mode-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.switchMode(btn.dataset.mode);
+                    });
+                });
+                
+                // Timer controls
+                document.getElementById('start-timer').addEventListener('click', () => this.startTimer());
+                document.getElementById('pause-timer').addEventListener('click', () => this.pauseTimer());
+                document.getElementById('reset-timer').addEventListener('click', () => this.resetTimer());
+            }
+            
+            switchMode(mode) {
+                // Update active button
+                document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+                
+                // Update active content
+                document.querySelectorAll('.study-mode-content').forEach(content => content.classList.remove('active'));
+                document.getElementById(`${mode}-mode`).classList.add('active');
+                
+                // Update title
+                const titles = {
+                    notes: 'Study Notes',
+                    quiz: 'Quiz Mode',
+                    flashcards: 'Flashcards',
+                    diagrams: 'Visual Diagrams'
+                };
+                document.getElementById('study-title').textContent = titles[mode];
+                
+                this.currentMode = mode;
+                this.loadModeContent(mode);
+            }
+            
+            loadModeContent(mode) {
+                switch(mode) {
+                    case 'notes':
+                        this.loadNotesContent();
+                        break;
+                    case 'quiz':
+                        this.loadQuizContent();
+                        break;
+                    case 'flashcards':
+                        this.loadFlashcardContent();
+                        break;
+                    case 'diagrams':
+                        this.loadDiagramContent();
+                        break;
+                }
+            }
+            
+            loadNotesContent() {
+                // Load notes from localStorage or show placeholder
+                const notes = localStorage.getItem('currentNotes');
+                if (notes) {
+                    const notesData = JSON.parse(notes);
+                    document.getElementById('notes-content').innerHTML = `
+                        <h2>${notesData.title}</h2>
+                        <div class="subject-badge">${notesData.subject.toUpperCase()}</div>
+                        <p><strong>Summary:</strong> ${notesData.summary}</p>
+                        <h3>Key Points</h3>
+                        <ul>
+                            ${notesData.keyPoints.map(point => `<li>${point}</li>`).join('')}
+                        </ul>
+                        <h3>Analogy</h3>
+                        <p><em>"${notesData.analogy}"</em></p>
+                    `;
+                }
+            }
+            
+            loadQuizContent() {
+                // Load quiz questions or show placeholder
+                const quizData = this.generateSampleQuiz();
+                this.renderQuizQuestion(quizData.questions[0], 0, quizData.questions.length);
+            }
+            
+            loadFlashcardContent() {
+                // Load flashcards or show placeholder
+                const flashcards = this.generateSampleFlashcards();
+                this.renderFlashcard(flashcards[0], 0, flashcards.length);
+            }
+            
+            loadDiagramContent() {
+                // Initialize Mermaid diagrams
+                mermaid.run();
+            }
+            
+            generateSampleQuiz() {
+                return {
+                    questions: [
+                        {
+                            question: "What is the main benefit of active recall?",
+                            options: [
+                                "It helps you memorize faster",
+                                "It improves long-term retention",
+                                "It makes studying more fun",
+                                "It reduces study time"
+                            ],
+                            correct: 1
+                        },
+                        {
+                            question: "Which study method is most effective?",
+                            options: [
+                                "Rereading notes",
+                                "Spaced repetition",
+                                "Cramming",
+                                "Highlighting"
+                            ],
+                            correct: 1
+                        }
+                    ]
+                };
+            }
+            
+            generateSampleFlashcards() {
+                return [
+                    { front: "Active Recall", back: "A study technique that involves actively retrieving information from memory" },
+                    { front: "Spaced Repetition", back: "A learning technique that involves reviewing information at increasing intervals" },
+                    { front: "Elaborative Rehearsal", back: "A memory technique that involves linking new information to existing knowledge" }
+                ];
+            }
+            
+            renderQuizQuestion(question, index, total) {
+                const container = document.getElementById('quiz-question-container');
+                const progress = ((index + 1) / total) * 100;
+                
+                document.getElementById('quiz-progress').style.width = `${progress}%`;
+                document.getElementById('quiz-progress-text').textContent = `${index + 1}/${total}`;
+                
+                container.innerHTML = `
+                    <h3 class="question-text">${question.question}</h3>
+                    <div class="options-grid">
+                        ${question.options.map((option, i) => `
+                            <button class="quiz-option" onclick="studySession.selectQuizAnswer(${i})">
+                                ${option}
+                            </button>
+                        `).join('')}
+                    </div>
+                    <div class="quiz-actions">
+                        <button class="nav-btn" onclick="studySession.nextQuestion()">Next Question</button>
+                    </div>
+                `;
+            }
+            
+            renderFlashcard(card, index, total) {
+                const counter = document.getElementById('card-counter');
+                const prevBtn = document.getElementById('prev-card');
+                const nextBtn = document.getElementById('next-card');
+                
+                counter.textContent = `${index + 1} / ${total}`;
+                prevBtn.disabled = index === 0;
+                nextBtn.disabled = index === total - 1;
+                
+                // Update flashcard content
+                const flashcard = document.getElementById('main-flashcard');
+                flashcard.classList.remove('flipped');
+                
+                const front = flashcard.querySelector('.flashcard-front .card-content');
+                const back = flashcard.querySelector('.flashcard-back .card-content');
+                
+                front.innerHTML = `
+                    <h4>${card.front}</h4>
+                    <p class="card-hint">Click to reveal answer</p>
+                `;
+                back.innerHTML = `<p>${card.back}</p>`;
+            }
+            
+            selectQuizAnswer(selectedIndex) {
+                const options = document.querySelectorAll('.quiz-option');
+                options.forEach((option, i) => {
+                    option.classList.remove('selected');
+                    if (i === selectedIndex) {
+                        option.classList.add('selected');
+                    }
+                });
+            }
+            
+            nextQuestion() {
+                // Handle quiz progression
+                this.showNotification('Quiz completed!', 'success');
+            }
+            
+            // Timer Functions
+            startTimer() {
+                if (!this.studyTimer.isRunning) {
+                    this.studyTimer.startTime = Date.now() - this.studyTimer.elapsed;
+                    this.studyTimer.isRunning = true;
+                    
+                    document.getElementById('start-timer').disabled = true;
+                    document.getElementById('pause-timer').disabled = false;
+                    
+                    this.studyTimer.interval = setInterval(() => {
+                        this.updateTimer();
+                    }, 1000);
+                }
+            }
+            
+            pauseTimer() {
+                if (this.studyTimer.isRunning) {
+                    this.studyTimer.isRunning = false;
+                    clearInterval(this.studyTimer.interval);
+                    
+                    document.getElementById('start-timer').disabled = false;
+                    document.getElementById('pause-timer').disabled = true;
+                }
+            }
+            
+            resetTimer() {
+                this.studyTimer.isRunning = false;
+                this.studyTimer.elapsed = 0;
+                clearInterval(this.studyTimer.interval);
+                
+                document.getElementById('start-timer').disabled = false;
+                document.getElementById('pause-timer').disabled = true;
+                
+                this.updateTimer();
+            }
+            
+            updateTimer() {
+                if (this.studyTimer.isRunning) {
+                    this.studyTimer.elapsed = Date.now() - this.studyTimer.startTime;
+                }
+                
+                const totalSeconds = Math.floor(this.studyTimer.elapsed / 1000);
+                const hours = Math.floor(totalSeconds / 3600);
+                const minutes = Math.floor((totalSeconds % 3600) / 60);
+                const seconds = totalSeconds % 60;
+                
+                const display = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+                document.getElementById('timer-display').textContent = display;
+                
+                // Update session stats
+                this.sessionStats.timeStudied = totalSeconds;
+                this.updateSessionStats();
+            }
+            
+            updateSessionStats() {
+                document.getElementById('session-time').textContent = Math.floor(this.sessionStats.timeStudied / 60) + 'm';
+                document.getElementById('cards-reviewed').textContent = this.sessionStats.cardsReviewed;
+                document.getElementById('quiz-score').textContent = this.sessionStats.quizScore + '%';
+                document.getElementById('accuracy').textContent = this.sessionStats.accuracy + '%';
+            }
+            
+            loadStudyContent() {
+                // Load study content from localStorage or API
+                const savedContent = localStorage.getItem('currentStudyContent');
+                if (savedContent) {
+                    const content = JSON.parse(savedContent);
+                    // Render content based on current mode
+                }
+            }
+            
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type} show`;
+                notification.textContent = message;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    notification.classList.remove('show');
+                    setTimeout(() => notification.remove(), 300);
+                }, 3000);
+            }
+        }
+        
+        // Global functions for onclick handlers
+        function flipCard() {
+            const flashcard = document.getElementById('main-flashcard');
+            flashcard.classList.toggle('flipped');
+        }
+        
+        function previousCard() {
+            studySession.showNotification('Previous card', 'info');
+        }
+        
+        function nextCard() {
+            studySession.showNotification('Next card', 'info');
+        }
+        
+        function toggleFocusMode() {
+            const focusMode = document.getElementById('focus-mode');
+            focusMode.classList.toggle('active');
+        }
+        
+        function startFocusSession() {
+            studySession.showNotification('Focus session started!', 'success');
+            // Implement focus timer logic here
+        }
+        
+        // Initialize study session when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            window.studySession = new StudySessionManager();
+            
+            // Initialize Mermaid
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: 'neutral',
+                themeVariables: {
+                    primaryColor: '#ffffff',
+                    edgeLabelBackground: '#ffffff',
+                    tertiaryColor: '#ffffff',
+                    lineColor: '#1a237e',
+                    fontFamily: 'Inter'
+                }
+            });
+        });
+    </script>
+</body>
+</html>

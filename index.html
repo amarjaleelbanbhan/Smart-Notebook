@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Study Notes - AI-Powered Learning Platform</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Core Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.7.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.4.3/echarts.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+    <script src="https://unpkg.com/splitting@1.0.6/dist/splitting.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/splitting@1.0.6/dist/splitting.css">
+    <script src="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/js/splide.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@splidejs/splide@4.1.4/dist/css/splide.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                        'playfair': ['Playfair Display', 'serif']
+                    },
+                    colors: {
+                        'primary': '#1a237e',
+                        'secondary': '#3f51b5',
+                        'accent': '#ff6b6b',
+                        'success': '#27ae60',
+                        'warning': '#ff9800',
+                        'paper': '#fdfdf6',
+                        'ink': '#1a237e'
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.6s ease-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'pulse-glow': 'pulseGlow 2s ease-in-out infinite',
+                        'float': 'float 3s ease-in-out infinite'
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap');
+        
+        :root {
+            --primary: #1a237e;
+            --secondary: #3f51b5;
+            --accent: #ff6b6b;
+            --success: #27ae60;
+            --warning: #ff9800;
+            --paper: #fdfdf6;
+            --ink: #1a237e;
+            --gray: #57606f;
+            --light-blue: #e3f2fd;
+            --cream: #fff9c4;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--paper);
+            color: var(--ink);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        /* Background Effects */
+        .bg-gradient {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            opacity: 0.1;
+        }
+        
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(63, 81, 181, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 75% 75%, rgba(255, 107, 107, 0.1) 0%, transparent 50%);
+        }
+        
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(253, 253, 246, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(26, 35, 126, 0.1);
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+        
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .nav-links {
+            display: flex;
+            list-style: none;
+            gap: 2rem;
+        }
+        
+        .nav-links a {
+            color: var(--ink);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s ease;
+            position: relative;
+        }
+        
+        .nav-links a:hover {
+            color: var(--secondary);
+        }
+        
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--secondary);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+        
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            padding: 6rem 2rem 4rem;
+            position: relative;
+        }
+        
+        .hero-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+        
+        .hero-content h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .hero-content p {
+            font-size: 1.25rem;
+            color: var(--gray);
+            margin-bottom: 2rem;
+            line-height: 1.7;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--secondary), var(--primary));
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(63, 81, 181, 0.3);
+        }
+        
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+            padding: 1rem 2rem;
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .hero-visual {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .hero-image {
+            width: 100%;
+            max-width: 500px;
+            height: 400px;
+            object-fit: cover;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        /* Note Generator Section */
+        .note-generator {
+            padding: 6rem 2rem;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(10px);
+            margin: 2rem 0;
+        }
+        
+        .generator-container {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .generator-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+        
+        .generator-header p {
+            font-size: 1.1rem;
+            color: var(--gray);
+            margin-bottom: 3rem;
+        }
+        
+        .generator-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: 'Inter', sans-serif;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--secondary);
+        }
+        
+        .form-group textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+        
+        /* Loading Animation */
+        .loading-spinner {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            margin: 2rem 0;
+        }
+        
+        .spinner-ring {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(63, 81, 181, 0.1);
+            border-left: 4px solid var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-text {
+            margin-top: 1rem;
+            color: var(--gray);
+            font-weight: 500;
+        }
+        
+        /* Results Section */
+        .results-section {
+            display: none;
+            margin-top: 2rem;
+        }
+        
+        .notes-container {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .notes-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .subject-badge {
+            display: inline-block;
+            background: var(--secondary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+        }
+        
+        .summary-section,
+        .key-points,
+        .analogy-box {
+            margin-bottom: 2rem;
+        }
+        
+        .summary-section h3,
+        .key-points h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .analogy-box {
+            background: var(--light-blue);
+            border-left: 4px solid var(--secondary);
+            padding: 1.5rem;
+            border-radius: 12px;
+            position: relative;
+        }
+        
+        .analogy-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .analogy-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .points-list {
+            list-style: none;
+        }
+        
+        .point-item {
+            background: var(--cream);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 0.5rem;
+            border-left: 3px solid var(--warning);
+        }
+        
+        .highlight-marker {
+            background: linear-gradient(104deg, transparent 0%, rgba(255, 241, 118, 0.7) 1%, rgba(255, 241, 118, 0.7) 98%, transparent 100%);
+            padding: 2px 4px;
+            border-radius: 4px;
+        }
+        
+        /* Study Tools */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .tool-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .tool-card:hover {
+            border-color: var(--secondary);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(63, 81, 181, 0.15);
+        }
+        
+        .tool-icon {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .tool-title {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+        
+        .tool-desc {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        /* Features Section */
+        .features {
+            padding: 6rem 2rem;
+            background: rgba(255, 255, 255, 0.5);
+        }
+        
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .features-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+        
+        .features-header h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+        
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+        }
+        
+        .feature-icon {
+            font-size: 3rem;
+            margin-bottom: 1.5rem;
+            display: block;
+        }
+        
+        .feature-card h3 {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-card p {
+            color: var(--gray);
+            line-height: 1.6;
+        }
+        
+        /* Footer */
+        .footer {
+            background: var(--primary);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        
+        .footer p {
+            opacity: 0.8;
+        }
+        
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(63, 81, 181, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(63, 81, 181, 0.6); }
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        .animate-slide-up {
+            animation: slideUp 0.5s ease-out;
+        }
+        
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .animate-pulse-glow {
+            animation: pulseGlow 2s ease-in-out infinite;
+        }
+        
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .hero-container {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+                text-align: center;
+            }
+            
+            .hero-content h1 {
+                font-size: 2.5rem;
+            }
+            
+            .nav-links {
+                display: none;
+            }
+            
+            .cta-buttons {
+                justify-content: center;
+            }
+            
+            .features-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-overlay.show .modal-content {
+            transform: scale(1);
+        }
+        
+        /* Quiz Styles */
+        .quiz-container {
+            min-width: 500px;
+            max-width: 600px;
+        }
+        
+        .quiz-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .quiz-progress {
+            margin-top: 1rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--secondary), var(--primary));
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .question-container {
+            text-align: center;
+        }
+        
+        .question-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            color: var(--primary);
+        }
+        
+        .options-grid {
+            display: grid;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .quiz-option {
+            padding: 1rem;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: left;
+        }
+        
+        .quiz-option:hover {
+            border-color: var(--secondary);
+            background: var(--light-blue);
+        }
+        
+        .quiz-option.selected {
+            border-color: var(--secondary);
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .quiz-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+        
+        /* Flashcard Styles */
+        .flashcard-container {
+            min-width: 400px;
+            max-width: 500px;
+        }
+        
+        .flashcard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+        
+        .flashcard-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .control-btn {
+            padding: 0.5rem 1rem;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .control-btn.active {
+            border-color: var(--secondary);
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .flashcard-3d {
+            width: 100%;
+            height: 250px;
+            position: relative;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        
+        .flashcard-3d.flipped {
+            transform: rotateY(180deg);
+        }
+        
+        .flashcard-front,
+        .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+        
+        .flashcard-front {
+            background: white;
+            border: 2px solid var(--secondary);
+        }
+        
+        .flashcard-back {
+            background: var(--cream);
+            transform: rotateY(180deg);
+        }
+        
+        .card-content {
+            text-align: center;
+        }
+        
+        .card-content h4 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 1rem;
+        }
+        
+        .card-hint {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .flashcard-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+        }
+        
+        .nav-btn {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--secondary);
+            background: white;
+            color: var(--secondary);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-btn:hover:not(:disabled) {
+            background: var(--secondary);
+            color: white;
+        }
+        
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .card-counter {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 2rem;
+            right: 2rem;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            color: white;
+            font-weight: 500;
+            z-index: 3000;
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification-success {
+            background: var(--success);
+        }
+        
+        .notification-error {
+            background: var(--accent);
+        }
+        
+        .notification-warning {
+            background: var(--warning);
+        }
+        
+        .notification-info {
+            background: var(--secondary);
+        }
+        
+        /* Accessibility */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+        
+        /* Focus styles */
+        .btn-primary:focus,
+        .btn-secondary:focus,
+        .quiz-option:focus,
+        .nav-btn:focus {
+            outline: 2px solid var(--secondary);
+            outline-offset: 2px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="bg-gradient"></div>
+    <div class="bg-pattern"></div>
+    
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#" class="logo">SmartStudy</a>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="dashboard.html">Dashboard</a></li>
+                <li><a href="study.html">Study</a></li>
+                <li><a href="library.html">Library</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1>
+                    <span id="typed-text"></span>
+                </h1>
+                <p>Transform any content into structured, interactive study materials with AI-powered note generation, smart quizzes, and adaptive flashcards.</p>
+                <div class="cta-buttons">
+                    <a href="#generator" class="btn-primary">Start Learning</a>
+                    <a href="dashboard.html" class="btn-secondary">View Dashboard</a>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <img src="resources/hero-study.jpg" alt="Modern study workspace" class="hero-image">
+            </div>
+        </div>
+    </section>
+    
+    <!-- Note Generator Section -->
+    <section id="generator" class="note-generator">
+        <div class="generator-container">
+            <div class="generator-header">
+                <h2>Generate Smart Study Notes</h2>
+                <p>Enter any content below and let our AI transform it into comprehensive study materials.</p>
+            </div>
+            
+            <div class="generator-form">
+                <div class="form-group">
+                    <label for="subject-select">Subject (Optional)</label>
+                    <select id="subject-select">
+                        <option value="auto">Auto-detect</option>
+                        <option value="mathematics">Mathematics</option>
+                        <option value="science">Science</option>
+                        <option value="history">History</option>
+                        <option value="literature">Literature</option>
+                        <option value="coding">Computer Science</option>
+                        <option value="language">Language</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="note-input">Your Content</label>
+                    <textarea id="note-input" placeholder="Paste or type your study material here. This can be:
+• Lecture notes
+• Textbook content
+• Research articles
+• Code snippets
+• Historical dates
+• Scientific concepts
+• Literary analysis
+• Or any educational content..."></textarea>
+                </div>
+                
+                <button id="generate-btn" class="btn-primary" style="width: 100%;">
+                    Generate Notes ✨
+                </button>
+            </div>
+            
+            <!-- Loading Animation -->
+            <div id="loader" class="loading-spinner">
+                <div class="spinner-ring"></div>
+                <p class="loading-text">Generating your notes...</p>
+            </div>
+            
+            <!-- Results -->
+            <div id="result-container" class="results-section">
+                <div id="output"></div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Features Section -->
+    <section class="features">
+        <div class="features-container">
+            <div class="features-header">
+                <h2>Powerful Study Tools</h2>
+                <p>Everything you need for effective learning in one intelligent platform.</p>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card animate-on-scroll">
+                    <span class="feature-icon">🤖</span>
+                    <h3>AI Note Generation</h3>
+                    <p>Transform any content into structured study notes with key points, summaries, and visual diagrams automatically generated by AI.</p>
+                </div>
+                
+                <div class="feature-card animate-on-scroll">
+                    <span class="feature-icon">📝</span>
+                    <h3>Smart Quizzes</h3>
+                    <p>Test your knowledge with adaptive quizzes that adjust difficulty based on your performance and provide instant feedback.</p>
+                </div>
+                
+                <div class="feature-card animate-on-scroll">
+                    <span class="feature-icon">📚</span>
+                    <h3>3D Flashcards</h3>
+                    <p>Study with interactive 3D flashcards featuring spaced repetition algorithms and multiple study modes.</p>
+                </div>
+                
+                <div class="feature-card animate-on-scroll">
+                    <span class="feature-icon">📊</span>
+                    <h3>Progress Analytics</h3>
+                    <p>Track your learning journey with detailed analytics, study streaks, and personalized insights.</p>
+                </div>
+                
+                <div class="feature-card animate-on-scroll">
+                    <span class="feature-icon">🎨</span>
+                    <h3>Visual Diagrams</h3>
+                    <p>Automatically generate flowcharts, mind maps, and concept maps to visualize complex information.</p>
+                </div>
+                
+                <div class="feature-card animate-on-scroll">
+                    <span class="feature-icon">💬</span>
+                    <h3>AI Tutor</h3>
+                    <p>Get instant help from an AI tutor that understands your study materials and answers your questions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 Smart Study Notes. Empowering learners with AI-driven education tools.</p>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="main.js"></script>
+    <script>
+        // Initialize typed text animation
+        document.addEventListener('DOMContentLoaded', function() {
+            new Typed('#typed-text', {
+                strings: [
+                    'Smart Study Notes',
+                    'AI-Powered Learning',
+                    'Interactive Education',
+                    'Personalized Studying'
+                ],
+                typeSpeed: 80,
+                backSpeed: 60,
+                backDelay: 2000,
+                loop: true,
+                showCursor: true,
+                cursorChar: '|'
+            });
+            
+            // Initialize scroll animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('animate-fade-in');
+                    }
+                });
+            }, observerOptions);
+
+            document.querySelectorAll('.animate-on-scroll').forEach(el => {
+                observer.observe(el);
+            });
+            
+            // Initialize Mermaid
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: 'neutral',
+                themeVariables: {
+                    primaryColor: '#ffffff',
+                    edgeLabelBackground: '#ffffff',
+                    tertiaryColor: '#ffffff',
+                    lineColor: '#1a237e',
+                    fontFamily: 'Inter'
+                }
+            });
+        });
+    </script>
+</body>
+</html>
